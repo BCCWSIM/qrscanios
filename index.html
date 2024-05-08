@@ -101,12 +101,12 @@
         let currentCameraIndex = 0;
         let cameras = [];
 
- document.querySelector('#scan-button').addEventListener('click', function() {
+document.querySelector('#scan-button').addEventListener('click', function() {
     Instascan.Camera.getCameras().then(function (availableCameras) {
         if (availableCameras.length > 0) {
             cameras = availableCameras;
-            // Start with the last camera in the list
-            currentCameraIndex = cameras.length - 1;
+            // Start with the first camera in the list
+            currentCameraIndex = 0;
             scanner.mirror = currentCameraIndex === 0; // mirror the front camera
             scanner.start(cameras[currentCameraIndex]).then(function() {
                 // Make the target visible when the camera is on
