@@ -66,15 +66,12 @@
             }
         });
         document.querySelector('#scan-button').addEventListener('click', function() {
-            Instascan.Camera.getCameras().then(function (cameras) {
-                if (cameras.length > 0) {
-                    var selectedCam = cameras[cameras.length - 1]; // Select the last camera
-                    scanner.start(selectedCam);
-                } else {
-                    console.error('No cameras found.');
-                }
-            }).catch(function (e) {
-                console.error(e);
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                scanner.start(stream);
+            })
+            .catch(function(error) {
+                console.error(error);
             });
         });
         document.querySelector('#stop-button').addEventListener('click', function() {
