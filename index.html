@@ -70,8 +70,11 @@
                 if (cameras.length > 0) {
                     var selectedCam = cameras[0];
                     // If there are multiple cameras, select the rear one
-                    if(cameras.length > 1){
-                        selectedCam = cameras[1];
+                    for(var i = 0; i < cameras.length; i++) {
+                        if(cameras[i].name.indexOf('back') !== -1) {
+                            selectedCam = cameras[i];
+                            break;
+                        }
                     }
                     scanner.start(selectedCam);
                 } else {
