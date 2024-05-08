@@ -9,7 +9,7 @@
             font-family: 'Courier New', monospace;
         }
         .game-button {
-            display: inline-block;
+            display: block;
             background-color: #44c767;
             border-radius: 28px;
             border: 1px solid #18ab29;
@@ -35,6 +35,30 @@
             padding: 20px;
             margin-top: 20px;
         }
+        #preview {
+            position: relative;
+        }
+        #target {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            margin-left: -100px;
+            margin-top: -100px;
+            border: 2px solid #44c767;
+            display: none; /* Make the target invisible initially */
+        }
+        #flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
     </style>
     <script type="text/javascript" src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 </head>
@@ -43,6 +67,7 @@
     <video id="preview"></video>
     <button class="game-button" id="scan-button">Scan QR Code</button>
     <button class="game-button" id="stop-button">Stop Scanner</button>
+    <button class="game-button" id="toggle-button">Toggle Camera</button>
     <div class="info-window" id="info-window">
         <!-- Information will be displayed here -->
     </div>
@@ -51,40 +76,66 @@
         let beep;
         window.onload = function() {
             beep = new Audio('beep.mp3');
+            beep.playbackRate = .80; // Speed up the beep sound by 2x
         }
 
         let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
         let scannedCodes = [];
         let lastScannedTime = Date.now();
-        scanner.addListener('scan', function (content) {
-            // Only record the code if it's been more than 1 second since the last scan
-            if (Date.now() - lastScannedTime > 1000) {
+        scanner.addListener('scan', function (content) {            
+            if (Date.now() - lastScannedTime > 100) { 
                 scannedCodes.push(content);
-                document.querySelector('#info-window').textContent = 'Scanned QR Codes: ' + scannedCodes.join(', ');
+                document.querySelector('#info-window').innerHTML = 'Scanned QR Codes: <br>' + scannedCodes.join('<br>');
                 lastScannedTime = Date.now();
                 beep.play();
+
+                // Flash the screen on successful scan
+                let flash = document.querySelector('#flash');
+                flash.style.opacity = 1;
+                setTimeout(function() {
+                    flash.style.opacity = 0;
+                }, 100);
             }
         });
 
-        document.querySelector('#scan-button').addEventListener('click', function() {
-            Instascan.Camera.getCameras().then(function (cameras) {
-                if (cameras.length > 0) {
-                    let rearCamera = cameras.find(camera => camera.name && camera.name.toLowerCase().includes('back'));
-                    if (rearCamera) {
-                        scanner.start(rearCamera);
-                    } else {
-                        console.error('No rear camera found.');
-                    }
-                } else {
-                    console.error('No cameras found.');
-                }
-            }).catch(function (e) {
-                console.error(e);
+        let currentCameraIndex = 0;
+        let cameras = [];
+
+ document.querySelector('#scan-button').addEventListener('click', function() {
+    Instascan.Camera.getCameras().then(function (availableCameras) {
+        if (availableCameras.length > 0) {
+            cameras = availableCameras;
+            // Start with the last camera in the list
+            currentCameraIndex = cameras.length - 1;
+            scanner.mirror = currentCameraIndex === 0; // mirror the front camera
+            scanner.start(cameras[currentCameraIndex]).then(function() {
+                // Make the target visible when the camera is on
+                document.querySelector('#target').style.display = 'block';
             });
-        });
+        } else {
+            console.error('No cameras found.');
+        }
+    }).catch(function (e) {
+        console.error(e);
+    });
+});
+
 
         document.querySelector('#stop-button').addEventListener('click', function() {
             scanner.stop();
+        });
+
+        document.querySelector('#toggle-button').addEventListener('click', function() {
+            if (cameras.length > 1) {
+                scanner.stop().then(() => {
+                    currentCameraIndex = ++currentCameraIndex % cameras.length; // toggle camera
+                    scanner.mirror = currentCameraIndex === 0; // mirror the front camera
+                    scanner.start(cameras[currentCameraIndex]).then(function() {
+                        // Make the target visible when the camera is on
+                        document.querySelector('#target').style.display = 'block';
+                    });
+                });
+            }
         });
     </script>
 </body>
