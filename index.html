@@ -68,7 +68,12 @@
         document.querySelector('#scan-button').addEventListener('click', function() {
             Instascan.Camera.getCameras().then(function (cameras) {
                 if (cameras.length > 0) {
-                    scanner.start(cameras[0]);
+                    var selectedCam = cameras[0];
+                    // If there are multiple cameras, select the rear one
+                    if(cameras.length > 1){
+                        selectedCam = cameras[1];
+                    }
+                    scanner.start(selectedCam);
                 } else {
                     console.error('No cameras found.');
                 }
