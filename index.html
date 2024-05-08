@@ -94,13 +94,14 @@
         let currentCameraIndex = 0;
         let cameras = [];
 
-        const onScanSuccess = (decodedText, decodedResult) => {
-            if (Date.now() - lastScannedTime > 100) { 
-                document.querySelector('#info-window').innerHTML = 'Scanned QR Code: <br>' + decodedText;
-                lastScannedTime = Date.now();
-                beep.play();
-            }
-        }
+       const onScanSuccess = (decodedText, decodedResult) => {
+    if (Date.now() - lastScannedTime > 100) { 
+        document.querySelector('#info-window').innerHTML = 'Scanned QR Code: <br>' + decodedText;
+        lastScannedTime = Date.now();
+        beep.play(); // Play the beep sound on successful scan
+    }
+}
+
 
         const html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", { fps: 10, qrbox: 200 });
