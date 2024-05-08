@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Input</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+        .game-button {
+            display: inline-block;
+            background-color: #44c767;
+            border-radius: 28px;
+            border: 1px solid #18ab29;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            text-shadow: 0px 1px 0px #2f6627;
+            font-size: 20px;
+            margin: 20px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .game-button:hover {
+            background-color: #5cbf2a;
+        }
+        .game-button:active {
+            position: relative;
+            top: 1px;
+        }
+        .info-window {
+            background-color: #333;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+    </style>
+    <script type="text/javascript" src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+</head>
+<body>
+    <h1>Scan QR Code</h1>
+    <video id="preview"></video>
+    <button class="game-button" id="scan-button">Scan QR Code</button>
+    <button class="game-button" id="stop-button">Stop Scanner</button>
+    <div class="info-window" id="info-window">
+        <!-- Information will be displayed here -->
+    </div>
+
+    <script>
+        let beep;
+        window.onload = function() {
+            beep = new Audio('beep.mp3');
+        }
+
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        let scannedCodes = [];
+        let lastScannedTime = Date.now();
+        scanner.addListener('scan', function (content) {
+            // Only record the code if it's been more than 1 second since the last scan
+            if (Date.now() - lastScannedTime > 1000) {
+                scannedCodes.push(content);
+                document.querySelector('#info-window').textContent = 'Scanned QR Codes: ' + scannedCodes.join(', ');
+                lastScannedTime = Date.now();
+                beep.play();
+            }
+        });
+        document.querySelector('#scan-button').addEventListener('click', function() {
+            Instascan.Camera.getCameras().then(function (cameras) {
+                if (cameras.length > 0) {
+                    scanner.start(cameras[0]);
+                } else {
+                    console.error('No cameras found.');
+                }
+            }).catch(function (e) {
+                console.error(e);
+            });
+        });
+        document.querySelector('#stop-button').addEventListener('click', function() {
+            scanner.stop();
+        });
+    </script>
+</body>
+</html>
