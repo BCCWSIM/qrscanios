@@ -20,6 +20,7 @@
     <script>
         let beep;
         let scannedCodes = []; // Add this line
+        let isScanning = false; // Add this line
 
         window.onload = function() {
             beep = new Audio('beep.mp3');
@@ -31,18 +32,20 @@
         let cameras = [];
 
         const onScanSuccess = (decodedText, decodedResult) => {
-            if (Date.now() - lastScannedTime > 100) { 
+            if (Date.now() - lastScannedTime > 100 && !isScanning) { // Modify this line
+                isScanning = true; // Add this line
                 scannedCodes.push(decodedText); // Add this line
                 document.querySelector('#info-window').innerHTML = 'Scanned QR Codes: <br>' + scannedCodes.join('<br>'); // Modify this line
                 lastScannedTime = Date.now();
                 beep.play().catch(error => { // Add error handling here
                     document.querySelector('#error-message').innerHTML = "Error playing sound: " + error;
                 });
+                setTimeout(() => { isScanning = false; }, 2000); // Add this line
             }
         }
 
         const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 400 });
+            "reader", { fps: 10, qrbox: 200 });
 
         document.querySelector('#scan-button').addEventListener('click', function() {
             html5QrcodeScanner.render(onScanSuccess);
