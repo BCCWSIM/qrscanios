@@ -45,7 +45,7 @@
         }
 
         const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 200 });
+            "reader", { fps: 10, qrbox: 500 });
 
         document.querySelector('#scan-button').addEventListener('click', function() {
             html5QrcodeScanner.render(onScanSuccess);
