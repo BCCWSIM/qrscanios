@@ -38,10 +38,13 @@
         }
 
         const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 400 });
+            "reader", { fps: 10, qrbox: 200 });
 
         document.querySelector('#scan-button').addEventListener('click', function() {
             html5QrcodeScanner.render(onScanSuccess);
+            beep.play().catch(error => { // Play the beep sound here
+                document.querySelector('#error-message').innerHTML = "Error playing sound: " + error;
+            });
         });
 
         document.querySelector('#stop-button').addEventListener('click', function() {
