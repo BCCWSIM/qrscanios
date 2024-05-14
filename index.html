@@ -28,7 +28,7 @@
         let cameras = [];
 
         const onScanSuccess = (decodedText, decodedResult) => {
-            if (Date.now() - lastScannedTime > 100) { 
+            if (Date.now() - lastScannedTime > 500) { 
                 document.querySelector('#info-window').innerHTML = 'Scanned QR Code: <br>' + decodedText;
                 lastScannedTime = Date.now();
                 beep.play().catch(error => { // Add error handling here
