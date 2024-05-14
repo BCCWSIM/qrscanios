@@ -11,6 +11,7 @@
     <button class="game-button" id="scan-button">Scan QR Code</button>
     <button class="game-button" id="stop-button">Stop Scanner</button>
     <button class="game-button" id="toggle-button">Toggle Camera</button>
+    <button class="game-button" id="fullscreen-button">Toggle Fullscreen</button> <!-- Add this line -->
     <div class="info-window" id="info-window">
         <!-- Information will be displayed here -->
     </div>
@@ -18,6 +19,8 @@
 
     <script>
         let beep;
+        let scannedCodes = []; // Add this line
+
         window.onload = function() {
             beep = new Audio('beep.mp3');
             beep.playbackRate = .80; // Speed up the beep sound by 2x
@@ -28,8 +31,9 @@
         let cameras = [];
 
         const onScanSuccess = (decodedText, decodedResult) => {
-            if (Date.now() - lastScannedTime > 500) { 
-                document.querySelector('#info-window').innerHTML = 'Scanned QR Code: <br>' + decodedText;
+            if (Date.now() - lastScannedTime > 100) { 
+                scannedCodes.push(decodedText); // Add this line
+                document.querySelector('#info-window').innerHTML = 'Scanned QR Codes: <br>' + scannedCodes.join('<br>'); // Modify this line
                 lastScannedTime = Date.now();
                 beep.play().catch(error => { // Add error handling here
                     document.querySelector('#error-message').innerHTML = "Error playing sound: " + error;
@@ -38,7 +42,7 @@
         }
 
         const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: 500 });
+            "reader", { fps: 10, qrbox: 200 });
 
         document.querySelector('#scan-button').addEventListener('click', function() {
             html5QrcodeScanner.render(onScanSuccess);
@@ -53,6 +57,16 @@
 
         document.querySelector('#toggle-button').addEventListener('click', function() {
             // Toggle camera functionality is not directly supported by the html5-qrcode library
+        });
+
+        document.querySelector('#fullscreen-button').addEventListener('click', function() { // Add this block
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen(); 
+                }
+            }
         });
     </script>
 </body>
